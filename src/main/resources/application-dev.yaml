@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payment_service
+    username: payment_user
+    password: payment_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+providers:
+  stripe:
+    base-url: https://api.stripe.com
+    api-key: ${STRIPE_API_KEY}
+  adyen:
+    base-url: https://api.adyen.com
+    api-key: ${ADYEN_API_KEY}
