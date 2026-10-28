@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PaymentServiceApplication (dev)" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.example.payment_service.PaymentServiceApplication" />
+    <module name="payment-service" />
+    <option name="VM_PARAMETERS" value="-Dspring.profiles.active=dev" />
+    <envs>
+      <env name="STRIPE_API_KEY" value="sk_test_12345678" />
+      <env name="ADYEN_API_KEY" value="adyen_test_12345678" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
