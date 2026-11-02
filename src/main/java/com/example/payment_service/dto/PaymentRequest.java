@@ -8,6 +8,7 @@ public class PaymentRequest {
     private String providerName;
     private BigDecimal amount;
     private PaymentMethod paymentMethod;
+    private String cardToken;
 
     public PaymentRequest() {
     }
@@ -24,6 +25,10 @@ public class PaymentRequest {
         return paymentMethod;
     }
 
+    public String getCardToken() {
+        return cardToken;
+    }
+
     public void setProviderName(String providerName) {
         this.providerName = providerName;
     }
@@ -34,5 +39,9 @@ public class PaymentRequest {
 
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public void setCardToken(String cardToken) {
+        this.cardToken = cardToken;
     }
 }

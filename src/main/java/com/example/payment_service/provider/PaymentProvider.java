@@ -6,5 +6,5 @@ import java.math.BigDecimal;
 
 public interface PaymentProvider {
     String getName();
-    String charge(BigDecimal amount, PaymentMethod method);
+    ChargeResult charge(BigDecimal amount, PaymentMethod method, String cardToken);
 }

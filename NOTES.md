@@ -2970,6 +2970,8 @@ class PaymentControllerTest { ... }
 
 Starts the full Spring application context. Same bean wiring as running the app. Database must be up (the `application-dev.yaml` datasource config is used).
 
+**⚠️ This project points integration tests at your real dev database.** There is no separate test database and no in-memory/throwaway database configured. `@SpringBootTest` connects to the exact same Postgres instance (`payment_service`) you use when running the app normally — see "Not production-safe: this test hits your real dev database" further down for why that's a known anti-pattern and what a real team would do instead.
+
 **`@AutoConfigureMockMvc`**
 
 ```java
@@ -3036,6 +3038,34 @@ void setup() {
 ```
 
 `@BeforeEach` — JUnit calls this method before every `@Test` method in the class. Use it for setup that must run fresh each time.
+
+**Not production-safe: this test hits your real dev database**
+
+`deleteAll()` above doesn't clear a disposable test database — it deletes real rows from the same local Postgres database (`payment_service`) you use when running the app yourself. Every time `PaymentControllerTest` runs, your dev data is wiped. This project accepts that tradeoff on purpose, to keep the setup simple while learning `@SpringBootTest` and `MockMvc`. It is **not** how a real team would do this.
+
+**How a real team would do this: Testcontainers**
+
+Testcontainers is a library that starts a real Postgres database inside a Docker container, just for the duration of the test run, and destroys it afterward. No database to create by hand, no risk of ever touching dev data, and — unlike H2 — it's the same real Postgres engine, so there's no behavioral gap between what the test runs against and what production uses.
+
+How it fits together:
+1. Add the dependencies: `spring-boot-testcontainers`, `testcontainers-junit-jupiter`, `testcontainers-postgresql` (test scope).
+2. Define a container in a `@TestConfiguration` and expose it as a `@Bean`, annotated with `@ServiceConnection`:
+   ```java
+   @TestConfiguration(proxyBeanMethods = false)
+   class TestcontainersConfig {
+
+       @Bean
+       @ServiceConnection
+       PostgreSQLContainer<?> postgresContainer() {
+           return new PostgreSQLContainer<>("postgres:17");
+       }
+   }
+   ```
+3. `@ServiceConnection` is what makes this automatic — Spring Boot detects the running container and points the datasource at it on its own. No manual `application-test.yaml` with a JDBC URL needed.
+4. Import that config into the test class, e.g. `@Import(TestcontainersConfig.class)` alongside `@SpringBootTest`.
+5. On `mvn test`, Docker spins up a fresh, empty Postgres container, Hibernate creates the schema from the `@Entity` classes (same `ddl-auto` behaviour as today), the tests run against it, and the container is thrown away when the JVM exits. Nothing persists between runs, and nothing ever touches `payment_service`.
+
+The one real requirement: Docker must be available wherever the tests run (your machine, and any CI pipeline). That's the main reason this project skips it for now — but it's the standard, expected approach in a professional Spring Boot codebase.
 
 ---
 

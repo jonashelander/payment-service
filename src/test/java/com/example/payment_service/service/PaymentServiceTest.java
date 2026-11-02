@@ -6,6 +6,7 @@ import com.example.payment_service.exception.TransactionNotFoundException;
 import com.example.payment_service.model.PaymentMethod;
 import com.example.payment_service.model.Transaction;
 import com.example.payment_service.model.TransactionStatus;
+import com.example.payment_service.provider.ChargeResult;
 import com.example.payment_service.provider.PaymentProvider;
 import com.example.payment_service.provider.ProviderRegistry;
 import org.junit.jupiter.api.Test;
@@ -41,9 +42,9 @@ public class PaymentServiceTest {
     void processPayment_whenChargeSucceeds_returnsCompletedTransaction() {
         when(providerRegistry.findByName("Stripe")).thenReturn(Optional.of(paymentProvider));
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(i -> i.getArgument(0));
-        when(paymentProvider.charge(any(), any())).thenReturn("ch_abc123");
+        when(paymentProvider.charge(any(), any(), any())).thenReturn(new ChargeResult("ch_abc123", "succeeded"));
 
-        Transaction result = paymentService.processPayment("Stripe", new BigDecimal("100"), PaymentMethod.CARD);
+        Transaction result = paymentService.processPayment("Stripe", new BigDecimal("100"), PaymentMethod.CARD, "pm_card_visa");
 
         assertEquals(TransactionStatus.COMPLETED, result.getTransactionStatus());
         verify(transactionRepository, times(2)).save(any(Transaction.class));
@@ -53,9 +54,9 @@ public class PaymentServiceTest {
     void processPayment_whenChargeThrows_returnsFailedTransactionAndRethrows() {
         when(providerRegistry.findByName("Stripe")).thenReturn(Optional.of(paymentProvider));
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(i -> i.getArgument(0));
-        when(paymentProvider.charge(any(), any())).thenThrow(new RuntimeException("Connection timed out"));
+        when(paymentProvider.charge(any(), any(), any())).thenThrow(new RuntimeException("Connection timed out"));
 
-        assertThrows(RuntimeException.class, () -> paymentService.processPayment("Stripe", new BigDecimal(100), PaymentMethod.CARD));
+        assertThrows(RuntimeException.class, () -> paymentService.processPayment("Stripe", new BigDecimal(100), PaymentMethod.CARD, "pm_card_visa"));
         verify(transactionRepository, times(2)).save(any(Transaction.class));
     }
 

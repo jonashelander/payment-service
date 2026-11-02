@@ -1,5 +1,6 @@
 package com.example.payment_service.exception;
 
+import com.example.payment_service.model.Transaction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,5 +16,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TransactionNotFoundException.class)
     public ResponseEntity<String> handleTransactionNotFound(TransactionNotFoundException e){
         return ResponseEntity.status(404).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ChargeFailedException.class)
+    public ResponseEntity<Transaction> handleChargeFailed(ChargeFailedException e){
+        return ResponseEntity.ok(e.getTransaction());
     }
 }

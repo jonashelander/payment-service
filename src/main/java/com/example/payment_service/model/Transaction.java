@@ -18,6 +18,8 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionStatus transactionStatus;
     private LocalDateTime createdAt;
+    @Column(columnDefinition = "TEXT")
+    private String pspTransactionStatus;
 
     @PrePersist
     private void onCreate() {
@@ -55,6 +57,10 @@ public class Transaction {
         return createdAt;
     }
 
+    public String getPspTransactionStatus() {
+        return pspTransactionStatus;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -77,6 +83,10 @@ public class Transaction {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setPspTransactionStatus(String pspTransactionStatus) {
+        this.pspTransactionStatus = pspTransactionStatus;
     }
 
     public Merchant getMerchant() {

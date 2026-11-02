@@ -19,7 +19,7 @@ public class PaymentController {
 
     @PostMapping
     public Transaction processPayment(@RequestBody PaymentRequest request) {
-        return paymentServiceTest.processPayment(request.getProviderName(), request.getAmount(), request.getPaymentMethod());
+        return paymentServiceTest.processPayment(request.getProviderName(), request.getAmount(), request.getPaymentMethod(), request.getCardToken());
     }
 
     @GetMapping("/{id}")

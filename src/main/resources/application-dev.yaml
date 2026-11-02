@@ -13,3 +13,4 @@ providers:
   adyen:
     base-url: https://api.adyen.com
     api-key: ${ADYEN_API_KEY}
+
