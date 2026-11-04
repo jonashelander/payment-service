@@ -9,6 +9,7 @@ public class PaymentRequest {
     private BigDecimal amount;
     private PaymentMethod paymentMethod;
     private String cardToken;
+    private String merchant;
 
     public PaymentRequest() {
     }
@@ -43,5 +44,13 @@ public class PaymentRequest {
 
     public void setCardToken(String cardToken) {
         this.cardToken = cardToken;
+    }
+
+    public String getMerchant() {
+        return merchant;
+    }
+
+    public void setMerchant(String merchant) {
+        this.merchant = merchant;
     }
 }

@@ -1,6 +1,8 @@
 package com.example.payment_service.controller;
 
+import com.example.payment_service.Repository.MerchantRepository;
 import com.example.payment_service.Repository.TransactionRepository;
+import com.example.payment_service.model.Merchant;
 import com.example.payment_service.model.PaymentMethod;
 import com.example.payment_service.model.Transaction;
 import com.example.payment_service.model.TransactionStatus;
@@ -33,18 +35,27 @@ public class PaymentControllerTest {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private MerchantRepository merchantRepository;
+
     @BeforeEach
     void setUp() {
         transactionRepository.deleteAll();
+        merchantRepository.deleteAll();
     }
 
     @Test
     void postPayment_validRequest_savesTransactionToDatabase() throws Exception {
+        Merchant merchant = new Merchant();
+        merchant.setName("Acme Corp");
+        merchantRepository.save(merchant);
+
         String body = """
                 {
                     "providerName": "Stripe",
                     "amount": 100.00,
-                    "paymentMethod": "CARD"
+                    "paymentMethod": "CARD",
+                    "merchant": "Acme Corp"
                 }
                 """;
 
@@ -53,7 +64,6 @@ public class PaymentControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
-
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.transactionStatus").exists());
 
@@ -62,11 +72,16 @@ public class PaymentControllerTest {
 
     @Test
     void getPaymentById_whenNotFound_returns404() throws Exception {
+        Merchant merchant = new Merchant();
+        merchant.setName("Acme Corp");
+        merchantRepository.save(merchant);
+
         Transaction existing = new Transaction();
         existing.setProviderName("Stripe");
         existing.setAmount(new BigDecimal("50"));
         existing.setPaymentMethod(PaymentMethod.CARD);
         existing.setTransactionStatus(TransactionStatus.COMPLETED);
+        existing.setMerchant(merchant);
         Transaction saved = transactionRepository.save(existing);
 
         mockMvc.perform(get("/payments/" + (saved.getId() + 1)))

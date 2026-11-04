@@ -1,5 +1,6 @@
 package com.example.payment_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public class Merchant {
     private Long id;
     String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "merchant", fetch = FetchType.LAZY)
     List<Transaction> transactions;
 

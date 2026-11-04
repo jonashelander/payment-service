@@ -4,6 +4,7 @@ import com.example.payment_service.Repository.TransactionRepository;
 import com.example.payment_service.exception.ChargeFailedException;
 import com.example.payment_service.exception.ProviderNotFoundException;
 import com.example.payment_service.exception.TransactionNotFoundException;
+import com.example.payment_service.model.Merchant;
 import com.example.payment_service.model.PaymentMethod;
 import com.example.payment_service.model.Transaction;
 import com.example.payment_service.model.TransactionStatus;
@@ -19,19 +20,23 @@ import java.util.List;
 public class PaymentService {
     private final ProviderRegistry providerRegistry;
     private final TransactionRepository transactionRepository;
+    private final MerchantService merchantService;
 
-    public PaymentService(ProviderRegistry providerRegistry, TransactionRepository transactionRepository) {
+    public PaymentService(ProviderRegistry providerRegistry, TransactionRepository transactionRepository, MerchantService merchantService) {
         this.providerRegistry = providerRegistry;
         this.transactionRepository = transactionRepository;
+        this.merchantService = merchantService;
     }
 
-    public Transaction processPayment(String providerName, BigDecimal amount, PaymentMethod method, String cardToken) {
+    public Transaction  processPayment(String providerName, BigDecimal amount, PaymentMethod method, String cardToken, String merchantName) {
         PaymentProvider provider = providerRegistry.findByName(providerName).orElseThrow(() -> new ProviderNotFoundException(providerName));
+        Merchant merchant = merchantService.findMerchantByName(merchantName);
         Transaction transaction = new Transaction();
         transaction.setProviderName(providerName);
         transaction.setAmount(amount);
         transaction.setPaymentMethod(method);
         transaction.setTransactionStatus(TransactionStatus.PENDING);
+        transaction.setMerchant(merchant);
         transactionRepository.save(transaction);
 
         try {

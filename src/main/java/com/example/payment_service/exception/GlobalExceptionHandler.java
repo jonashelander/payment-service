@@ -18,6 +18,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(404).body(e.getMessage());
     }
 
+    @ExceptionHandler(MerchantNotFoundException.class)
+    public ResponseEntity<String> handleMerchantNotFound(MerchantNotFoundException e){
+        return ResponseEntity.status(404).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateMerchantException.class)
+    public ResponseEntity<String> handleDuplicateMerchant(DuplicateMerchantException e){
+        return ResponseEntity.status(409).body(e.getMessage());
+    }
+
     @ExceptionHandler(ChargeFailedException.class)
     public ResponseEntity<Transaction> handleChargeFailed(ChargeFailedException e){
         return ResponseEntity.ok(e.getTransaction());
